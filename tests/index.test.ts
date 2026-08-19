@@ -1,5 +1,7 @@
 import { it, describe } from "node:test";
 
+import assert from "node:assert";
+import { once } from "node:events";
 import { Worker } from "node:worker_threads";
 
 const tests = {
@@ -15,9 +17,14 @@ for (const key in tests) {
     });
 
     it("worker thread", async () => {
-      await using _ = new Worker(path, {
-        eval: true,
-      });
+      const worker = new Worker(new URL(path, import.meta.url));
+
+      try {
+        const [code] = await once(worker, "exit");
+        assert.strictEqual(code, 0);
+      } finally {
+        await worker.terminate();
+      }
     });
   });
 }

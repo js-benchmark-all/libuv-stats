@@ -35,7 +35,6 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
           run_install: false
 
       - name: Setup node
@@ -123,7 +122,6 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
           run_install: false
 
       - name: Setup node
@@ -168,6 +166,25 @@ jobs:
         if: ${{ matrix.settings.setup }}
         shell: bash
 
+      - name: Fetch node.lib
+        if: ${{ contains(matrix.settings.target, 'windows') }}
+        shell: bash
+        run: |
+          NODE_VERSION=$(node -p "process.versions.node")
+
+          case "${{ matrix.settings.target }}" in
+            x86_64-*)  NODE_ARCH=x64 ;;
+            aarch64-*) NODE_ARCH=arm64 ;;
+            i686-*)    NODE_ARCH=x86; NODE_VERSION=22.23.2 ;;
+            *) echo "unhandled windows target: ${{ matrix.settings.target }}" >&2; exit 1 ;;
+          esac
+
+          mkdir -p "$RUNNER_TEMP/node-lib"
+          curl -fsSL -o "$RUNNER_TEMP/node-lib/node.lib" \
+            "https://nodejs.org/dist/v${NODE_VERSION}/win-${NODE_ARCH}/node.lib"
+
+          echo "NODE_LIB_DIR=$RUNNER_TEMP/node-lib" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: pnpm install
 
@@ -207,7 +224,10 @@ jobs:
 
           run: |
             sudo pkg install -y -f curl node libnghttp2 npm cmake
-            sudo npm install -g pnpm --ignore-scripts
+
+            sudo npm install -g \
+              "pnpm@$(node -p 'require("./package.json").packageManager.split("@").pop()')" \
+              --ignore-scripts
 
             curl https://sh.rustup.rs -sSf --output rustup.sh
             sh rustup.sh -y --profile minimal --default-toolchain stable
@@ -279,7 +299,6 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
           run_install: false
 
       - name: Setup node
@@ -334,17 +353,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: false
-
       - name: Setup node
         uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
-          cache: pnpm
 
       - name: Output docker params
         id: docker
@@ -366,12 +378,6 @@ jobs:
               console.log('IMAGE=node:${{ matrix.node }}-slim')
             }
           " >> $GITHUB_OUTPUT
-
-      - name: Install dependencies
-        run: |
-          pnpm config set supportedArchitectures.cpu "current,arm64,x64,arm"
-          pnpm config set supportedArchitectures.libc "current,musl,gnu"
-          pnpm install
 
       - name: Download artifacts
         uses: actions/download-artifact@v8
@@ -398,7 +404,7 @@ jobs:
           image: ${{ steps.docker.outputs.IMAGE }}
           name: test-bindings-${{ matrix.target }}
           options: "-v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}"
-          args: pnpm test
+          args: sh -c "corepack enable pnpm && pnpm test"
 
   publish:
     name: Publish
@@ -420,7 +426,6 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10
           run_install: false
 
       - name: Setup node
