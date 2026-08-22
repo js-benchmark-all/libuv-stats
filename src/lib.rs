@@ -21,18 +21,18 @@ fn reset_state() {
   ITERS.set(0);
 }
 
+#[allow(non_snake_case)]
+#[napi]
+pub fn lastLoopIters() -> i64 {
+  ITERS.replace(0)
+}
+
 unsafe extern "C" fn on_check(_handle: *mut uv_check_t) {
   ITERS.set(ITERS.get() + 1);
 }
 
 unsafe extern "C" fn on_close(handle: *mut uv_handle_s) {
   drop_in_place(handle);
-}
-
-#[allow(non_snake_case)]
-#[napi]
-pub fn lastLoopIters() -> i64 {
-  ITERS.replace(0)
 }
 
 #[napi]
