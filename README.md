@@ -19,3 +19,14 @@ console.log(lastLoopIters()); // 2
 // Unregister all callbacks to track stats
 untrack();
 ```
+
+To reset all state:
+
+```ts
+track();
+await setImmediate();
+
+// Reset tracked state
+track();
+console.log(lastLoopIters()); // 0
+```
