@@ -12,13 +12,9 @@ for (const key in tests) {
   const path = tests[key as keyof typeof tests];
 
   describe(key, () => {
-    it("main thread", async () => {
-      await import(path);
-    });
-
+    it("main thread", () => import(path));
     it("worker thread", async () => {
       const worker = new Worker(new URL(path, import.meta.url));
-
       try {
         const [code] = await once(worker, "exit");
         assert.strictEqual(code, 0);

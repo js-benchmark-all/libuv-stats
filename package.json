@@ -1,6 +1,6 @@
 {
   "name": "libuv-stats",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Get libuv stats.",
   "main": "index.js",
   "repository": "js-benchmark-all/libuv-stats",
@@ -25,24 +25,15 @@
       "aarch64-linux-android",
       "aarch64-unknown-linux-gnu",
       "aarch64-unknown-linux-musl",
-      "aarch64-unknown-linux-ohos",
       "aarch64-pc-windows-msvc",
       "x86_64-apple-darwin",
       "x86_64-pc-windows-msvc",
-      "x86_64-pc-windows-gnu",
       "x86_64-unknown-linux-gnu",
       "x86_64-unknown-linux-musl",
-      "x86_64-unknown-linux-ohos",
       "x86_64-unknown-freebsd",
       "i686-pc-windows-msvc",
       "armv7-unknown-linux-gnueabihf",
-      "armv7-unknown-linux-musleabihf",
-      "armv7-linux-androideabi",
-      "universal-apple-darwin",
-      "loongarch64-unknown-linux-gnu",
-      "riscv64gc-unknown-linux-gnu",
-      "powerpc64le-unknown-linux-gnu",
-      "s390x-unknown-linux-gnu"
+      "armv7-linux-androideabi"
     ]
   },
   "packageManager": "pnpm@10.34.5",
@@ -70,6 +61,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@types/node": "^26.2.0",
     "@emnapi/core": "^1.5.0",
     "@emnapi/runtime": "^1.5.0",
     "@napi-rs/cli": "^3.8.6",
@@ -89,8 +81,5 @@
     "*.@(js|ts|tsx|yml|yaml|md|json)": [
       "oxlint --fix --no-error-on-unmatched-pattern"
     ]
-  },
-  "dependencies": {
-    "@types/node": "^26.2.0"
   }
 }
